@@ -658,7 +658,7 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
                     uint16_t wantedVolume = (uint16_t)root["volume"];
                     publishDebug("config volume");
                     if (wantedVolume <= 100) {
-                        uint16_t outputVolume = (100 - wantedVolume) * 25 / 100; //25 is minimum volume
+                        uint16_t outputVolume = (100 - wantedVolume) * 10 / 100; //10 is minimum volume
                         wb.SpiWrite(hal::kConfBaseAddress+8,(const uint8_t *)(&outputVolume), sizeof(uint16_t));
                         config.volume = wantedVolume;
                    }
@@ -1486,12 +1486,14 @@ void setup() {
             // Stop audio processing
             xEventGroupClearBits(audioGroup, STREAM);
             xEventGroupClearBits(audioGroup, PLAY);
-            xEventGroupSetBits(everloopGroup, EVERLOOP);
+            xEventGroupSetBits(everloopGroup, ANIMATE);
             Serial.println("Uploading...");
             xTimerStop(wifiReconnectTimer, 0);
             xTimerStop(mqttReconnectTimer, 0);
         })
         .onEnd([]() {
+            xEventGroupClearBits(everloopGroup, ANIMATE);
+            xEventGroupSetBits(everloopGroup, EVERLOOP);
             isUpdateInProgess = false;
             Serial.println("\nEnd");
         })
