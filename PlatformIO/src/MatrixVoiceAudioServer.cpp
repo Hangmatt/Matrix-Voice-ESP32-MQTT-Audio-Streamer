@@ -411,7 +411,7 @@ void saveConfiguration(const char *filename, Config &config) {
 void connectToWifi() {
     Serial.println("Connecting to Wi-Fi...");
     WiFi.mode(WIFI_STA);
-    WiFi.config(IP, GATEWAY, PDNS, SUBNET);
+    WiFi.config(IP, GATEWAY, SUBNET, PDNS);
     WiFi.begin(WIFI_SSID, WIFI_PASS);
     retryCount = 0;
     while (WiFi.waitForConnectResult() != WL_CONNECTED) {
