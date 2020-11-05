@@ -159,12 +159,18 @@ struct Config {
   uint16_t amp_output = AMP_OUT_SPEAKERS;
   int brightness = 15;
   int hotword_brightness = 15;
-  uint16_t volume = 100;
+  uint16_t volume = 30;
   int gain = 5;
   int CHUNK = 256;  // set to multiplications of 256, voice returns a set of 256
 };
 const char *configfile = "/config.json";
 Config config;
+
+// Set your Static IP address parameter
+IPAddress IP(192, 168, 2, 6);
+IPAddress GATEWAY(192, 168, 2, 254);
+IPAddress SUBNET(255, 255, 255, 0);
+IPAddress PDNS(192, 168, 2, 254);
 
 // Timers
 TimerHandle_t mqttReconnectTimer;
@@ -399,9 +405,13 @@ void saveConfiguration(const char *filename, Config &config) {
     file.close();
 }
 
+
+
+
 void connectToWifi() {
     Serial.println("Connecting to Wi-Fi...");
     WiFi.mode(WIFI_STA);
+    WiFi.config(IP, GATEWAY, PDNS, SUBNET);
     WiFi.begin(WIFI_SSID, WIFI_PASS);
     retryCount = 0;
     while (WiFi.waitForConnectResult() != WL_CONNECTED) {
@@ -409,6 +419,8 @@ void connectToWifi() {
         if (retryCount > 2) {
             Serial.println("Connection Failed! Rebooting...");
             ESP.restart();
+        } else {
+            Serial.println("Connection Failed! Retry...");
         }
     }
 }
@@ -496,6 +508,7 @@ void onMqttConnect(bool sessionPresent) {
     asyncClient.subscribe(restartTopic.c_str(), 0);
     asyncClient.subscribe(audioTopic.c_str(), 0);
     asyncClient.subscribe(debugTopic.c_str(), 0);
+    publishDebug(WiFi.localIP().toString().c_str());
     publishDebug("Connected to asynch MQTT!");
 }
 
@@ -1455,17 +1468,8 @@ void setup() {
     xTaskCreatePinnedToCore(everloopTask, "everloopTask", 4096, NULL, 5, &everloopTaskHandle, 1);
     xEventGroupSetBits(everloopGroup, EVERLOOP);
 
-    WiFi.mode(WIFI_STA);
-    WiFi.begin(WIFI_SSID, WIFI_PASS);
-    while (WiFi.waitForConnectResult() != WL_CONNECTED) {
-        retryCount++;
-        if (retryCount > 2) {
-            Serial.println("Connection Failed! Rebooting...");
-            ESP.restart();
-        } else {
-            Serial.println("Connection Failed! Retry...");
-        }
-    }
+
+    connectToWifi();
 
     // Create the runnings tasks, AudioStream is on one core, the rest on the other core
     xTaskCreatePinnedToCore(Audiostream, "Audiostream", audioStreamStack, NULL, 3, &audioStreamHandle, 0);

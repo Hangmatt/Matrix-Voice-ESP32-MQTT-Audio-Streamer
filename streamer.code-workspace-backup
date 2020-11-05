@@ -92,9 +92,7 @@
 			"valarray": "cpp",
 			"vector": "cpp",
 			"*.tcc": "cpp",
-			"cinttypes": "cpp",
-			"filesystem": "cpp"
-		},
-		"liveServer.settings.multiRootWorkspaceName": "PlatformIO"
+			"cinttypes": "cpp"
+		}
 	}
 }
