@@ -6,3 +6,4 @@ MatrixVoiceAudioServerNoOTA/build
 *.bin
 OTABuilder/build
 .vscode/
+.DS_S*

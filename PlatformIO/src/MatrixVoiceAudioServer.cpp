@@ -166,13 +166,6 @@ struct Config {
 const char *configfile = "/config.json";
 Config config;
 
-// Set your Static IP address parameter
-IPAddress IP(192, 168, 2, 6);
-IPAddress GATEWAY(192, 168, 2, 254);
-IPAddress SUBNET(255, 255, 255, 0);
-IPAddress PDNS(192, 168, 2, 254);
-IPAddress SDNS(1, 1, 1, 1);
-
 // Timers
 TimerHandle_t mqttReconnectTimer;
 TimerHandle_t wifiReconnectTimer;
@@ -412,7 +405,7 @@ void saveConfiguration(const char *filename, Config &config) {
 void connectToWifi() {
     Serial.println("Connecting to Wi-Fi...");
     WiFi.mode(WIFI_STA);
-    WiFi.config(IP, GATEWAY, SUBNET, PDNS, SDNS);
+    WiFi.config(STA_IP, STA_GATEWAY, STA_SUBNET, STA_PDNS, STA_SDNS);
     WiFi.begin(WIFI_SSID, WIFI_PASS);
     retryCount = 0;
     while (WiFi.waitForConnectResult() != WL_CONNECTED) {
