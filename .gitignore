@@ -5,4 +5,5 @@ MatrixVoiceAudioServerNoOTA/sdkconfig
 MatrixVoiceAudioServerNoOTA/build
 *.bin
 OTABuilder/build
-.vscode/.DS_Store
+.vscode/
+.DS_S*
