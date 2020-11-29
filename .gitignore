@@ -7,3 +7,4 @@ MatrixVoiceAudioServerNoOTA/build
 OTABuilder/build
 .vscode/
 .DS_S*
+.DS_Store
