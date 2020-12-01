@@ -22,6 +22,12 @@ if os.path.isfile(settings):
         ("OTA_PASS_HASH", "\\\"" + otaPasswordHash + "\\\""),
         ("SITEID", "\\\"" + config[sectionMatrix]["siteId"] + "\\\""),
         ("HOSTNAME", "\\\"" + config[sectionMatrix]["hostname"] + "\\\""),
+        ("STATIC_IP", "\\\"" + config[sectionWifi]["static_ip"] + "\\\""),
+        ("STA_IP", "IPAddress\(" + config[sectionWifi]["sta_ip"].replace(".", ",") + "\)"),
+        ("STA_GATEWAY", "IPAddress\(" + config[sectionWifi]["sta_gateway"].replace(".", ",") + "\)"),
+        ("STA_SUBNET", "IPAddress\(" + config[sectionWifi]["sta_subnet"].replace(".", ",") + "\)"),
+        ("STA_PDNS", "IPAddress\(" + config[sectionWifi]["sta_pdns"].replace(".", ",") + "\)"),
+        ("STA_SDNS", "IPAddress\(" + config[sectionWifi]["sta_sdns"].replace(".", ",") + "\)"),
         ("MQTT_IP", "IPAddress\(" + config[sectionMqtt]["ip"].replace(".", ",") + "\)"),
         ("MQTT_HOST", "\\\"" + config[sectionMqtt]["hostname"] + "\\\""),
         ("MQTT_PORT", "\\\"" + config[sectionMqtt]["port"] + "\\\""),
@@ -29,7 +35,7 @@ if os.path.isfile(settings):
         ("MQTT_PASS", "\\\"" + config[sectionMqtt]["password"] + "\\\""),
         ("MQTT_MAX_PACKET_SIZE", config[sectionMqtt]["maxPacketSize"])
     ])
-    
+
     env.Replace(
         UPLOAD_PROTOCOL="espota",
         UPLOAD_PORT=config[sectionMatrix]["hostname"],

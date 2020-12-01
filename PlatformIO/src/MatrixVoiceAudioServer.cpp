@@ -152,7 +152,7 @@ AsyncWebServer server(80);
 struct Config {
   IPAddress mqtt_host;
   bool mqtt_valid = false;
-  int mqtt_port = MQTT_PORT;
+  int mqtt_port = (int)MQTT_PORT;
   bool mute_input = false;
   bool mute_output = false;
   uint16_t hotword_detection = HW_REMOTE;
@@ -405,7 +405,9 @@ void saveConfiguration(const char *filename, Config &config) {
 void connectToWifi() {
     Serial.println("Connecting to Wi-Fi...");
     WiFi.mode(WIFI_STA);
+    #ifdef STATIC_IP
     WiFi.config(STA_IP, STA_GATEWAY, STA_SUBNET, STA_PDNS, STA_SDNS);
+    #endif
     WiFi.begin(WIFI_SSID, WIFI_PASS);
     retryCount = 0;
     while (WiFi.waitForConnectResult() != WL_CONNECTED) {
