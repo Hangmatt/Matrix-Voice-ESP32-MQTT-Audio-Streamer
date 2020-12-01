@@ -1,4 +1,4 @@
-Import ("env")
+import ("env")
 import os.path
 import configparser
 import hashlib
@@ -19,6 +19,12 @@ if os.path.isfile(settings):
     env.Append(CPPDEFINES=[
         ("WIFI_SSID", "\\\"" + config[sectionWifi]["ssid"] + "\\\""),
         ("WIFI_PASS", "\\\"" + config[sectionWifi]["password"] + "\\\""),
+        ("STATIC_IP", "\\\"" + config[sectionWifi]["static_ip"] + "\\\""),
+        ("STA_IP", "IPAddress\(" + config[sectionWifi]["ip"].replace(".", ",") + "\)"),
+        ("STA_GATEWAY", "IPAddress\(" + config[sectionWifi]["gateway"].replace(".", ",") + "\)"),
+        ("STA_SUBNET", "IPAddress\(" + config[sectionWifi]["subnet"].replace(".", ",") + "\)"),
+        ("STA_DNS1", "IPAddress\(" + config[sectionWifi]["dns"].replace(".", ",") + "\)"),
+        ("STA_DNS2", "IPAddress\(" + config[sectionWifi]["dns2"].replace(".", ",") + "\)"),
         ("OTA_PASS_HASH", "\\\"" + otaPasswordHash + "\\\""),
         ("SITEID", "\\\"" + config[sectionMatrix]["siteId"] + "\\\""),
         ("HOSTNAME", "\\\"" + config[sectionMatrix]["hostname"] + "\\\""),
@@ -29,7 +35,7 @@ if os.path.isfile(settings):
         ("MQTT_PASS", "\\\"" + config[sectionMqtt]["password"] + "\\\""),
         ("MQTT_MAX_PACKET_SIZE", config[sectionMqtt]["maxPacketSize"])
     ])
-    
+
     env.Replace(
         UPLOAD_PROTOCOL="espota",
         UPLOAD_PORT=config[sectionMatrix]["hostname"],
