@@ -215,8 +215,10 @@ bool hotword_detected = false;
 bool isUpdateInProgess = false;
 bool streamingBytes = false;
 bool endStream = false;
-bool DEBUG = false;
-// bool STATIC_IP = false;
+bool DEBUG = DEBUG_FLAG;
+#ifndef STATIC_IP
+    bool STATIC_IP = false;
+#endif
 std::string finishedMsg = "";
 std::string detectMsg = "";
 int chunkValues[] = {32, 64, 128, 256, 512, 1024};
@@ -691,17 +693,15 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
             if (!err) {
                 JsonObject root = doc.as<JsonObject>();
                 if (root.containsKey("samplerate")) {
-                    bool d = DEBUG;
-                    DEBUG = true;
                     uint8_t rate;
                     wb.SpiRead(hal::kConfBaseAddress+9, &rate, sizeof(uint8_t));
                     char str[100];
                     sprintf(str, "Samplerate: %d", (int)rate);
-                    publishDebug(str);
-                    DEBUG = d;
+                    asyncClient.publish(debugTopic.c_str(), 0, false, str);
                 }
                 if (root.containsKey("debug")) {
-                    DEBUG = (root["debug"] == "true") ? true : false;
+                    #undef DEBUG
+                    bool DEBUG = (root["debug"] == "true") ? true : false;
                 }
             }
         }

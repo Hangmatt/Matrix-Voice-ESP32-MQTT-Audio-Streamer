@@ -1,6 +1,7 @@
 {
 	"folders": [
 		{
+			"name": "Root",
 			"path": "."
 		},
 		{
@@ -10,10 +11,10 @@
 	],
 	"settings": {
 		"terminal.integrated.env.osx": {
-			"PATH": "/Users/matthijss/.platformio/penv/bin:/Users/matthijs/.platformio/penv:/:/Users/matthijs/.config/yarn/global/node_modules/.bin:/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/3.6/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/Applications/Wireshark.app/Contents/MacOS:/Users/matthijs/Library/Android/sdk/platform-tools/:/Users/matthijs/esp/xtensa-esp32-elf/bin",
+			"PATH": "/usr/local/opt/python@3.8/bin:/Users/matthijs/.pyenv/shims:/Users/matthijs/.local/bin:/usr/local/opt/gnu-sed/libexec/gnubin:/usr/local/opt/make/libexec/gnubin:/usr/local/opt/grep/libexec/gnubin:/usr/local/opt/flex/bin:/usr/local/bin/cmake:/Users/matthijs/.gem/bin:/usr/local/opt/ccache/libexec:/usr/local/sbin:/Users/matthijs/.pyenv/shims:/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Applications/VMware Fusion.app/Contents/Public:/usr/local/share/dotnet:~/.dotnet/tools:/Library/Apple/usr/bin:/Applications/Wireshark.app/Contents/MacOS:null:/usr/local/opt/python@3.8/bin:/Users/matthijs/.pyenv/shims:/Users/matthijs/.local/bin:/usr/local/opt/gnu-sed/libexec/gnubin:/usr/local/opt/make/libexec/gnubin:/usr/local/opt/grep/libexec/gnubin:/usr/local/opt/flex/bin:/usr/local/bin/cmake:/Users/matthijs/.gem/bin:/usr/local/opt/ccache/libexec:/usr/local/sbin:/opt/local/bin:/opt/local/sbin:/Users/matthijs/.platformio/penv/bin:/Users/matthijs/.platformio/penv/bin",
 			"PLATFORMIO_CALLER": "vscode"
 		},
-		"python.pythonPath": "/Users/matthijs/.platformio/penv/bin/python",
+		"python.pythonPath": "/Users/matthijs/.pyenv/shims/python",
 		"C_Cpp.commentContinuationPatterns": [
 
 			"/**"

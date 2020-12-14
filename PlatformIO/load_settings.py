@@ -1,4 +1,4 @@
-import ("env")
+Import ("env")
 import os.path
 import configparser
 import hashlib
@@ -19,7 +19,8 @@ if os.path.isfile(settings):
     env.Append(CPPDEFINES=[
         ("WIFI_SSID", "\\\"" + config[sectionWifi]["ssid"] + "\\\""),
         ("WIFI_PASS", "\\\"" + config[sectionWifi]["password"] + "\\\""),
-        ("STATIC_IP", "\\\"" + config[sectionWifi]["static_ip"] + "\\\""),
+        ("STATIC_IP", "\\\"" + config[sectionWifi]['static_ip'] + "\\\""),
+        ("DEBUG_FLAG", "\\\"" + config[sectionMatrix]['debug'] + "\\\""),
         ("STA_IP", "IPAddress\(" + config[sectionWifi]["ip"].replace(".", ",") + "\)"),
         ("STA_GATEWAY", "IPAddress\(" + config[sectionWifi]["gateway"].replace(".", ",") + "\)"),
         ("STA_SUBNET", "IPAddress\(" + config[sectionWifi]["subnet"].replace(".", ",") + "\)"),
