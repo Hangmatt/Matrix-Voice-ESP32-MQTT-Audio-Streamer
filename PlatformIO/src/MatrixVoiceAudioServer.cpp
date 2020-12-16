@@ -156,10 +156,10 @@ struct Config {
   bool mute_input = false;
   bool mute_output = false;
   uint16_t hotword_detection = HW_REMOTE;
-  uint16_t amp_output = AMP_OUT_HEADPHONE;
+  uint16_t amp_output = AMP_OUT_SPEAKERS;
   int brightness = 15;
   int hotword_brightness = 15;
-  uint16_t volume = 100;
+  uint16_t volume = 30;
   int gain = 5;
   int CHUNK = 256;  // set to multiplications of 256, voice returns a set of 256
 };
@@ -215,9 +215,12 @@ bool hotword_detected = false;
 bool isUpdateInProgess = false;
 bool streamingBytes = false;
 bool endStream = false;
-bool DEBUG = DEBUG_FLAG;
-#ifndef STATIC_IP
-    bool STATIC_IP = false;
+#ifndef SET_DEBUG
+    bool SET_DEBUG = false;
+#endif
+bool DEBUG = SET_DEBUG;
+#ifndef SET_STATIC
+    bool SET_STATIC = false;
 #endif
 std::string finishedMsg = "";
 std::string detectMsg = "";
@@ -334,6 +337,7 @@ XT_Wav_Class::XT_Wav_Class(const unsigned char *WavData) {
  * ************************************************************************ */
 void publishDebug(const char* message) {
     if (DEBUG) {
+        Serial.println(message);
         asyncClient.publish(debugTopic.c_str(), 0, false, message);
     }
 }
@@ -403,10 +407,10 @@ void saveConfiguration(const char *filename, Config &config) {
 }
 
 void connectToWifi() {
-    Serial.println("Connecting to Wi-Fi...");
-    if (STATIC_IP) {
-        WiFi.config(STA_IP, STA_GATEWAY, STA_SUBNET, STA_DNS1, STA_DNS2);
+    if (SET_STATIC) {
+    WiFi.config(STA_IP, STA_GATEWAY, STA_SUBNET, STA_DNS1, STA_DNS2);
     }
+    Serial.println("Connecting to Wi-Fi...");
     WiFi.mode(WIFI_STA);
     WiFi.begin(WIFI_SSID, WIFI_PASS);
     retryCount = 0;
@@ -415,6 +419,8 @@ void connectToWifi() {
         if (retryCount > 2) {
             Serial.println("Connection Failed! Rebooting...");
             ESP.restart();
+        } else {
+            Serial.println("Connection Failed! Retry...");
         }
     }
 }
@@ -502,8 +508,10 @@ void onMqttConnect(bool sessionPresent) {
     asyncClient.subscribe(restartTopic.c_str(), 0);
     asyncClient.subscribe(audioTopic.c_str(), 0);
     asyncClient.subscribe(debugTopic.c_str(), 0);
+    publishDebug(WiFi.localIP().toString().c_str());
     publishDebug("Connected to asynch MQTT!");
 }
+
 
 // ---------------------------------------------------------------------------
 // MQTT Disonnect event
@@ -646,9 +654,11 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
                 }
                 if (root.containsKey("mute_input")) {
                     config.mute_input = (root["mute_input"] == "true") ? true : false;
+                    publishDebug("config mute_input");
                 }
                 if (root.containsKey("mute_output")) {
                     config.mute_output = (root["mute_output"] == "true") ? true : false;
+                    publishDebug("config mute_output");
                 }
                 if (root.containsKey("amp_output")) {
                     config.amp_output =  (root["amp_output"] == "0") ? AMP_OUT_SPEAKERS : AMP_OUT_HEADPHONE;
@@ -656,11 +666,13 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
                 }
                 if (root.containsKey("gain")) {
                     mics.SetGain((int)root["gain"]);
+                    publishDebug("config gain");
                 }
                 if (root.containsKey("volume")) {
                     uint16_t wantedVolume = (uint16_t)root["volume"];
+                    publishDebug("config volume");
                     if (wantedVolume <= 100) {
-                        uint16_t outputVolume = (100 - wantedVolume) * 25 / 100; //25 is minimum volume
+                        uint16_t outputVolume = (100 - wantedVolume) * 10 / 100; //10 is minimum volume
                         wb.SpiWrite(hal::kConfBaseAddress+8,(const uint8_t *)(&outputVolume), sizeof(uint16_t));
                         config.volume = wantedVolume;
                    }
@@ -668,6 +680,7 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
                 if (root.containsKey("hotword")) {
                     config.hotword_detection = (root["hotword"] == "local") ? HW_LOCAL : HW_REMOTE;
                 }
+                publishDebug("hotword");
                 saveConfiguration(configfile, config);
             } else {
                 publishDebug(err.c_str());
@@ -700,7 +713,7 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
                     asyncClient.publish(debugTopic.c_str(), 0, false, str);
                 }
                 if (root.containsKey("debug")) {
-                    #undef DEBUG
+                    // #undef DEBUG
                     bool DEBUG = (root["debug"] == "true") ? true : false;
                 }
             }
@@ -997,7 +1010,7 @@ void AudioPlayTask(void *p) {
 
             //Post some stats!
             sprintf(str, "Samplerate: %d, Channels: %d, Format: %04X, Bits per Sample: %04X", (int)Message.SampleRate, (int)Message.NumChannels, (int)Message.Format, (int)Message.BitsPerSample);
-            publishDebug(str);
+            publishDebug(str); Serial.println(str);
 
             //unmute output unless set to mute
             uint16_t muteValue = 0;
@@ -1087,7 +1100,7 @@ void AudioPlayTask(void *p) {
                 }
             }
 
-            //Publish the finshed message
+            //Publish the finished message
             if (streamingBytes) {
                 if (endStream) {
                     asyncClient.publish(streamFinishedTopic.c_str(), 0, false, finishedMsg.c_str());
@@ -1172,6 +1185,9 @@ String processor(const String& var){
   if (var == "FR_1024") {
       return (config.CHUNK == 1024) ? "selected" : "";
   }
+  if (var == "restart") {
+      ESP.restart();
+  }
   return String();
 }
 
@@ -1185,6 +1201,7 @@ void handleFSf ( AsyncWebServerRequest* request, const String& route ) {
             bool saveNeeded = false;
             bool mi_found = false;
             bool mo_found = false;
+            bool rst = false;
             for(int i=0;i<params;i++){
                 AsyncWebParameter* p = request->getParam(i);
                 Serial.printf("Parameter %s, value %s\r\n", p->name().c_str(), p->value().c_str());
@@ -1334,6 +1351,7 @@ void handleFSf ( AsyncWebServerRequest* request, const String& route ) {
                         }
                     }
                 }
+
             }
             if (!mi_found && config.mute_input) {
                 Serial.println("Mute input not found, value = off");
@@ -1360,6 +1378,13 @@ void handleFSf ( AsyncWebServerRequest* request, const String& route ) {
             if (saveNeeded) {
                 Serial.println("Settings changed, saving configuration");
                 saveConfiguration(configfile, config);
+
+            if (rst == 1) {
+                //use MQTT
+                std::string passHash = OTA_PASS_HASH;
+                std::string msg =  std::string("{\"passwordhash\":") + passHash + std::string("}");
+                asyncClient.publish(restartTopic.c_str(), 0, false, msg.c_str());
+            }
             } else {
                 Serial.println("No settings changed");
             }
@@ -1376,6 +1401,8 @@ void handleRequest ( AsyncWebServerRequest* request )
 {
     handleFSf ( request, String( "/index.html") ) ;
 }
+
+
 
 /* ************************************************************************ *
       SETUP
@@ -1454,6 +1481,7 @@ void setup() {
     xTaskCreatePinnedToCore(everloopTask, "everloopTask", 4096, NULL, 5, &everloopTaskHandle, 1);
     xEventGroupSetBits(everloopGroup, EVERLOOP);
 
+
     connectToWifi();
 
     // Create the runnings tasks, AudioStream is on one core, the rest on the other core
@@ -1475,12 +1503,14 @@ void setup() {
             // Stop audio processing
             xEventGroupClearBits(audioGroup, STREAM);
             xEventGroupClearBits(audioGroup, PLAY);
-            xEventGroupSetBits(everloopGroup, EVERLOOP);
+            xEventGroupSetBits(everloopGroup, ANIMATE);
             Serial.println("Uploading...");
             xTimerStop(wifiReconnectTimer, 0);
             xTimerStop(mqttReconnectTimer, 0);
         })
         .onEnd([]() {
+            xEventGroupClearBits(everloopGroup, ANIMATE);
+            xEventGroupSetBits(everloopGroup, EVERLOOP);
             isUpdateInProgess = false;
             Serial.println("\nEnd");
         })
@@ -1504,6 +1534,24 @@ void setup() {
 
     server.on("/", handleRequest);
     server.begin();
+
+    // Trying to figure out stuff about the hardware....
+    log_d("CPU freq: %d", ESP.getCpuFreqMHz());
+    log_d("Chip Revision: %d",ESP.getChipRevision());
+    log_d("SDK Version: %d",ESP.getSdkVersion());
+    log_d("Total heap: %d", ESP.getHeapSize());
+    log_d("Free heap: %d", ESP.getFreeHeap());
+    log_d("Total PSRAM: %d", ESP.getPsramSize());
+    log_d("Free PSRAM: %d", ESP.getFreePsram());
+    // publishDebug(reinterpret_cast<char*>(ESP.getHeapSize()));
+    // publishDebug(reinterpret_cast<char*>(ESP.getFreeHeap()));
+    // publishDebug(reinterpret_cast<char*>(ESP.getPsramSize()));
+    // publishDebug(reinterpret_cast<char*>(ESP.getFreePsram()));
+
+    Serial.print("Heap Size: "); Serial.println(ESP.getHeapSize());
+    Serial.print("Free Heap: "); Serial.println(ESP.getHeapSize());
+    Serial.print("psRAM: "); Serial.println(ESP.getPsramSize());
+    Serial.print("Free Ram: "); Serial.println(ESP.getFreePsram());
 
 }
 
