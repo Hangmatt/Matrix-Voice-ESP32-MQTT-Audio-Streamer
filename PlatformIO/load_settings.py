@@ -15,7 +15,7 @@ if os.path.isfile(settings):
     config.read(settings)
 
     otaPasswordHash = hashlib.md5(config[sectionOta]['password'].encode()).hexdigest()
- 
+
     env.Append(CPPDEFINES=[
         ("WIFI_SSID", "\\\"" + config[sectionWifi]["ssid"] + "\\\""),
         ("WIFI_PASS", "\\\"" + config[sectionWifi]["password"] + "\\\""),
@@ -45,7 +45,7 @@ if os.path.isfile(settings):
     if (config[sectionOta]["method"] == "ota") :
         env.Replace(
             UPLOAD_PROTOCOL="espota",
-            UPLOAD_PORT=config[sectionGeneral]["hostname"],
+            UPLOAD_PORT=config[sectionGeneral]["deployhost"],
             UPLOAD_FLAGS=[
                 "--port=" + config[sectionOta]["port"],
                 "--auth=" + config[sectionOta]["password"],
