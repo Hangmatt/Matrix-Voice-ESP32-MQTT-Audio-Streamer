@@ -10,7 +10,7 @@
 	],
 	"settings": {
 		"terminal.integrated.env.osx": {
-			"PATH": "/Users/paulromkes/.platformio/penv/bin:/Users/paulromkes/.platformio/penv:/Users/paulromkes/.yarn/bin:/Users/paulromkes/.config/yarn/global/node_modules/.bin:/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/3.6/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands:/Applications/Wireshark.app/Contents/MacOS:/Users/paulromkes/Library/Android/sdk/platform-tools/:/Users/paulromkes/esp/xtensa-esp32-elf/bin",
+			"PATH": "/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Applications/VMware Fusion.app/Contents/Public:/usr/local/share/dotnet:~/.dotnet/tools:/Library/Apple/usr/bin:/Applications/Wireshark.app/Contents/MacOS:/Users/matthijs/.platformio/penv/bin:/Users/matthijs/.platformio/penv:/usr/local/sbin",
 			"PLATFORMIO_CALLER": "vscode"
 		},
 		"files.associations": {
